@@ -1,0 +1,58 @@
+filters:
+  and:
+    - type == "Session"
+    - /^\d{4}-\d{2}-\d{2} - /.matches(file.basename)
+formulas:
+  dia: date(file.basename.slice(0, 10))
+  onde: file.folder.replace("/sessoes", "")
+  assunto: file.basename.slice(13)
+  pendente: if(estado, estado.containsAny("PR aberta", "não commitado"), false)
+properties:
+  formula.dia:
+    displayName: Dia
+  formula.onde:
+    displayName: Projeto/Área
+  formula.assunto:
+    displayName: Assunto
+  estado:
+    displayName: Estado
+  issues:
+    displayName: Issues
+views:
+  - type: table
+    name: Últimos 7 dias
+    filters:
+      and:
+        - formula.dia >= today() - "7d"
+    groupBy:
+      property: formula.dia
+      direction: DESC
+    order:
+      - formula.dia
+      - formula.onde
+      - formula.assunto
+      - estado
+      - issues
+  - type: table
+    name: Pendentes
+    filters:
+      and:
+        - formula.pendente
+        - '!file.inFolder("4-Archives")'
+    order:
+      - formula.dia
+      - formula.onde
+      - formula.assunto
+      - estado
+      - issues
+  - type: table
+    name: Por projeto/área
+    groupBy:
+      property: formula.onde
+      direction: ASC
+    order:
+      - formula.dia
+      - formula.assunto
+      - estado
+      - issues
+      - branch

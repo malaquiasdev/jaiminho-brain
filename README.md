@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="#install">install</a> · <a href="#using-it">usage</a> · <a href="#where-notes-live">vault layout</a> · <a href="#open-knowledge-format">format</a> · <a href="#commands">commands</a>
+  <a href="#install">install</a> · <a href="#using-it">usage</a> · <a href="#where-notes-live">vault layout</a> · <a href="#session-dashboard">dashboard</a> · <a href="#open-knowledge-format">format</a> · <a href="#commands">commands</a>
 </p>
 
 <p align="center">
@@ -89,7 +89,7 @@ is missing from the conversation.
 
 ```
 /brain-log                          # names the note from what the session did
-/brain-log "restore dashboard without websocket"
+/brain-log "round churros prices to the nearest cent"
 ```
 
 **Put things in** — a fact, a decision, a preference
@@ -122,6 +122,7 @@ The vault follows [PARA](https://fortelabs.com/blog/para/) (Tiago Forte): notes 
   2-Areas/claude/preferencias/NAME.md  rules for how the agent should work
   3-Resources/TOPIC/                   reference and interests
   4-Archives/YEAR/SLUG/                finished projects
+  sessoes.base                         session dashboard (see below)
 ```
 
 Inside each project or area: loose notes at the root (`kebab-slug.md`, one idea per file), session logs in `sessoes/YYYY-MM-DD - TOPIC.md`, and an `index.md`. The format follows the [Open Knowledge Format](#open-knowledge-format). `/brain-log` files a session under the project it advanced, or under the repo's folder in `2-Areas/` by default (found by name, so grouping repos under a parent folder like `2-Areas/<client>/<repo>/` works).
@@ -131,6 +132,35 @@ Every write:
 - updates an existing note instead of adding a duplicate
 - records a secret's existence, never its value
 - ends with a commit in the brain's git repo (no push)
+
+## Session dashboard
+
+`templates/sessoes.base` is an [Obsidian Base](https://help.obsidian.md/bases):
+a live table over every session note in the vault, built from the frontmatter
+`/brain-log` writes.
+
+| View | Shows |
+|------|-------|
+| Últimos 7 dias | This week's sessions, grouped by day |
+| Pendentes | Sessions whose `estado` is `PR aberta` or `não commitado`, outside `4-Archives/` |
+| Por projeto/área | Every session, grouped by project or area folder |
+
+**Set it up**
+
+1. Obsidian 1.9 or later, with **Settings → Core plugins → Bases** turned on.
+2. Copy the template to the vault root:
+
+   ```sh
+   cp templates/sessoes.base "${BRAIN_DIR:-$HOME/Documents/brain}/"
+   ```
+
+3. Open `sessoes.base` in Obsidian and pick a view at the top of the table.
+
+It stays empty until the first `/brain-log`. It relies on three things the
+skill already does: `type: Session` in the frontmatter, the
+`YYYY-MM-DD - topic.md` file name (day and topic come from it), and the
+`estado` values above. Edit the `.base` in Obsidian or as YAML to add views or
+change what counts as pending; the `obsidian-bases` skill knows the syntax.
 
 ## Open Knowledge Format
 
@@ -250,7 +280,7 @@ work on plain files without them. These run with full agent permissions and are 
 | Skill | What it adds |
 |-------|--------------|
 | `obsidian-markdown` | Correct Obsidian syntax in the notes: `[[Note#Heading]]` links, embeds, callouts, typed properties |
-| `obsidian-bases` | Writing `.base` files — table views over the vault's frontmatter, e.g. a `sessoes.base` listing sessions from the last 7 days, those still pending, and by project/area |
+| `obsidian-bases` | Writing `.base` files — table views over the vault's frontmatter, like the [session dashboard](#session-dashboard) |
 
 ## Commands
 

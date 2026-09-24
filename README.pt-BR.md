@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="#instalar">instalar</a> · <a href="#como-usar">uso</a> · <a href="#onde-as-notas-ficam">vault</a> · <a href="#open-knowledge-format">formato</a> · <a href="#comandos">comandos</a>
+  <a href="#instalar">instalar</a> · <a href="#como-usar">uso</a> · <a href="#onde-as-notas-ficam">vault</a> · <a href="#painel-de-sessões">painel</a> · <a href="#open-knowledge-format">formato</a> · <a href="#comandos">comandos</a>
 </p>
 
 <p align="center">
@@ -88,7 +88,7 @@ falta da conversa.
 
 ```
 /brain-log                          # dá nome à nota a partir do que a sessão fez
-/brain-log "restaurar dashboard sem websocket"
+/brain-log "arredondar o preço dos churros"
 ```
 
 **Guardar** — um fato, uma decisão, uma preferência
@@ -121,6 +121,7 @@ O vault segue o [PARA](https://fortelabs.com/blog/para/) (Tiago Forte): as notas
   2-Areas/claude/preferencias/NOME.md  regras de como o agente deve trabalhar
   3-Resources/TEMA/                    referência e interesses
   4-Archives/ANO/SLUG/                 projetos concluídos
+  sessoes.base                         painel de sessões (ver abaixo)
 ```
 
 Dentro de cada projeto ou área: notas soltas na raiz (`slug-kebab.md`, uma ideia por arquivo), registros de sessão em `sessoes/AAAA-MM-DD - ASSUNTO.md` e um `index.md`. O formato segue o [Open Knowledge Format](#open-knowledge-format). O `/brain-log` registra a sessão no projeto que ela avançou, ou na pasta do repo em `2-Areas/` por padrão (achada pelo nome, então agrupar repos numa pasta-mãe como `2-Areas/<cliente>/<repo>/` funciona).
@@ -130,6 +131,35 @@ Toda escrita:
 - atualiza uma nota existente em vez de criar duplicata
 - registra que um segredo existe, nunca o valor dele
 - termina com um commit no repo git do brain (sem push)
+
+## Painel de sessões
+
+O `templates/sessoes.base` é uma [Base do Obsidian](https://help.obsidian.md/bases):
+uma tabela ao vivo com todas as notas de sessão do vault, montada a partir do
+frontmatter que o `/brain-log` escreve.
+
+| Visão | Mostra |
+|-------|--------|
+| Últimos 7 dias | As sessões da semana, agrupadas por dia |
+| Pendentes | Sessões com `estado` `PR aberta` ou `não commitado`, fora de `4-Archives/` |
+| Por projeto/área | Todas as sessões, agrupadas pela pasta do projeto ou área |
+
+**Como configurar**
+
+1. Obsidian 1.9 ou mais novo, com **Settings → Core plugins → Bases** ligado.
+2. Copie o template pra raiz do vault:
+
+   ```sh
+   cp templates/sessoes.base "${BRAIN_DIR:-$HOME/Documents/brain}/"
+   ```
+
+3. Abra o `sessoes.base` no Obsidian e escolha uma visão no topo da tabela.
+
+Ele fica vazio até o primeiro `/brain-log`. Depende de três coisas que a skill
+já faz: `type: Session` no frontmatter, o nome `AAAA-MM-DD - assunto.md` (dia e
+assunto saem dele) e os valores de `estado` acima. Edite o `.base` no Obsidian
+ou direto no YAML pra criar visões ou mudar o que conta como pendente; a skill
+`obsidian-bases` conhece a sintaxe.
 
 ## Open Knowledge Format
 
@@ -249,7 +279,7 @@ são revisadas a cada atualização.
 | Skill | O que acrescenta |
 |-------|------------------|
 | `obsidian-markdown` | Sintaxe certa do Obsidian nas notas: links `[[Nota#Heading]]`, embeds, callouts, propriedades tipadas |
-| `obsidian-bases` | Arquivos `.base` — visões em tabela sobre o frontmatter do vault, por exemplo um `sessoes.base` com as sessões dos últimos 7 dias, as pendentes e por projeto/área |
+| `obsidian-bases` | Arquivos `.base` — visões em tabela sobre o frontmatter do vault, como o [painel de sessões](#painel-de-sessões) |
 
 ## Comandos
 
